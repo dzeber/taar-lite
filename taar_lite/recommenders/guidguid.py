@@ -11,10 +11,15 @@ class GuidGuidCoinstallRecommender:
     """ A recommender class that returns top N addons based on a
     passed addon identifier.
     Accepts:
-        - a dict containing coinstalled addons
-        - a dict of addon rankins
-        - a list of treatments that transform the original coinstall dict, and will
+        - raw_coinstall_dict: a dict containing coinstalled addons
+        - treatments: list of treatments that transform the original coinstall dict, and will
           be applied in the order supplied
+        - treatment_kwargs: additional named args that will be passed to the treatments
+        - tie_breaker_dict: a dict of addon rankings used to break ties when ordering recommendations
+        - apply_treatment_on_init: should the treated dataset be constructed immediately
+          on initialization? Default True.
+        - validate_raw_coinstall_dict: verify that raw_coinstall_dict represents
+          a symmetric matrix? Default True.
 
     Provides a recommend method to then return recommendations for a supplied addon.
     Can also return the complete recommendation graph.
