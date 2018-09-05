@@ -1,9 +1,6 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
-import numpy as np
-import pandas as pd
-
 from .treatments import BaseTreatment
 
 
@@ -55,12 +52,22 @@ class GuidGuidCoinstallRecommender:
         if apply_treatment_on_init:
             self.build_treatment_graph()
 
-    @classmethod
-    def validate_coinstall_dict(cls, coinstalls):
-        sorted_guids = sorted(list(coinstalls.keys()))
-        df = pd.DataFrame(coinstalls, index=sorted_guids, columns=sorted_guids)
-        as_matrix = df.values
-        assert np.allclose(as_matrix, as_matrix.T, equal_nan=True)
+    @staticmethod
+    def validate_coinstall_dict(coinstalls):
+        """Verifies that a coinstallation dict represents a symmetric matrix.
+
+        This means that, for any nested keys (i, j) in the coinstall dict,
+
+            coinstalls[i][j] == coinstalls[j][i],
+
+        and the dict contains both entries.
+        """
+        for outer_guid in coinstalls:
+            for inner_guid in coinstalls[outer_guid]:
+                assert inner_guid in coinstalls
+                assert outer_guid in coinstalls[inner_guid]
+                assert coinstalls[outer_guid][inner_guid] == coinstalls[inner_guid][outer_guid]
+
 
     @property
     def raw_coinstall_graph(self):

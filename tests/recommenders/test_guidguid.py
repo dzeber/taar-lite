@@ -31,6 +31,33 @@ def recommender(coinstall_dict, ranking_dict):
     )
 
 
+@pytest.fixture
+def symmetric_coinstall_dict():
+    return {
+        'a': {'b': 10, 'c': 13},
+        'b': {'c': 4, 'a': 10},
+        'c': {'a': 13, 'b': 4}
+    }
+
+
+@pytest.fixture
+def asymmetric_key_coinstall_dict():
+    return {
+        'a': {'b': 10, 'c': 13},
+        'b': {'a': 10},
+        'c': {'a': 13, 'b': 4}
+    }
+
+
+@pytest.fixture
+def asymmetric_value_coinstall_dict():
+    return {
+        'a': {'b': 10, 'c': 13},
+        'b': {'c': 4, 'a': 10},
+        'c': {'a': 13, 'b': 5}
+    }
+
+
 def test_sorted_result_list_breaks_ranking_tie(recommender, coinstall_dict):
     # This coinstall dict will give equal weighting to
     # everything so we want recommendations to be sorted by popularity.
@@ -64,3 +91,23 @@ def test_get_recommend_graph_returns_complete_rec_graph(recommender):
         'b': [('c', '000000001.0000000000.0000000090')],
         'c': [('b', '000000001.0000000000.0000000100')],
     }
+
+
+def test_validate_on_symmetric_graph(symmetric_coinstall_dict):
+    GuidGuidCoinstallRecommender.validate_coinstall_dict(
+        symmetric_coinstall_dict
+    )
+
+
+def test_validate_on_asymmetric_key_graph(asymmetric_key_coinstall_dict):
+    with pytest.raises(AssertionError):
+        GuidGuidCoinstallRecommender.validate_coinstall_dict(
+            asymmetric_key_coinstall_dict
+        )
+
+
+def test_validate_on_asymmetric_value_graph(asymmetric_value_coinstall_dict):
+    with pytest.raises(AssertionError):
+        GuidGuidCoinstallRecommender.validate_coinstall_dict(
+            asymmetric_value_coinstall_dict
+        )
